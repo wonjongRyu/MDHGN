@@ -16,10 +16,12 @@ from collections import OrderedDict
 
 
 def print_loss(epoch, seconds, train_loss, valid_loss):
+    t = train_loss
+    v = valid_loss
     h, m, s = get_hms(seconds)
     if epoch == 1:
         print("[epoch] [  time  ] [train1] [train2] [valid1] [valid2]")
-    print(f"[{epoch:05}] {h:02}h{m:02}m{s:02}s, {train_loss[0]:.03}, {train_loss[1]:.03}, {valid_loss[0]:.03}, {valid_loss[1]:.03}")
+    print(f"[{epoch:05}] {h:02}h{m:02}m{s:02}s, {t[0]:.03}, {t[1]:.03}, {t[2]:.03}, {t[3]:.03}, {t[4]:.03}, {v[0]:.03}, {v[1]:.03}, {v[2]:.03}, {v[3]:.03}, {v[4]:.03}")
 
 
 """ time """
@@ -45,30 +47,17 @@ def get_hms(seconds):
     return h, m, s
 
 
-""" ckpt """
-
-
-def ckpt(model):
-    # Load checkpoint.
-    print("==> Resuming from checkpoint..")
-    assert os.path.isdir("checkpoint"), "Error: no checkpoint directory found!"
-    checkpoint = torch.load("./checkpoint/ckpt.pth")
-    model.load_state_dict(checkpoint["net"])
-    best_acc = checkpoint["acc"]
-    epoch_ckpt = checkpoint["epoch"]
-    return model, best_acc, epoch_ckpt
-
-
 """ csv record """
 
 
 def record_on_csv(args, epoch, seconds, train_loss, valid_loss):
+    t = train_loss
+    v = valid_loss
     h, m, s = get_hms(seconds)
     hms = str(h) + "h" + str(m) + "m" + str(s) + "s"
     f = open(args.savePath_of_loss, "a", encoding="utf-8", newline="")
     wr = csv.writer(f)
-    wr.writerow([epoch, hms, train_loss[0], train_loss[1],
-                 valid_loss[0], valid_loss[1]])
+    wr.writerow([epoch, hms, t[0], t[1], t[2], t[3], t[4], v[0], v[1], v[2], v[3], v[4]])
     f.close()
 
 
@@ -181,36 +170,17 @@ def make_csvfile_and_folders(args):
 
 def make_folders(args):
     make_images_folder(args)
-    make_layers_folder(args)
-    make_tensor_folder(args)
-    make_networks_folder(args)
 
 
 def make_csvfile(args):
     make_loss_file(args)
     make_arch_file(args)
     make_args_file(args)
-    make_test_file(args)
 
 
 def make_images_folder(args):
     args.savePath_of_images = args.savePath_of_outputs + "/images"
     check_and_make_folder(args.savePath_of_images)
-
-
-def make_layers_folder(args):
-    args.savePath_of_layers = args.savePath_of_outputs + "/layers"
-    check_and_make_folder(args.savePath_of_layers)
-
-
-def make_tensor_folder(args):
-    args.savePath_of_tensor = args.savePath_of_outputs + "/tensor"
-    check_and_make_folder(args.savePath_of_tensor)
-
-
-def make_networks_folder(args):
-    args.savePath_of_networks = args.savePath_of_outputs + "/networks"
-    check_and_make_folder(args.savePath_of_networks)
 
 
 def make_loss_file(args):
@@ -235,13 +205,6 @@ def make_args_file(args):
     args_vals = list(args_dict.values())
     for i in range(len(args_keys)):
         write_csv_row(args.savePath_of_args, [args_keys[i], args_vals[i]])
-
-
-def make_test_file(args):
-    args.savePath_of_test = args.savePath_of_outputs + \
-        "/test_" + args.start_time + ".csv"
-    write_csv_row(args.savePath_of_test, [
-                  "epoch", "img_num", "MSE", "PSNR", "SSIM"])
 
 
 def check_and_make_folder(folder):

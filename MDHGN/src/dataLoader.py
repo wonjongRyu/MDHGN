@@ -14,7 +14,7 @@ class myDataset(Dataset):
         self.sz = args.size_of_images
 
     def __len__(self):
-        return len(self.images)
+        return len(self.source)
 
     def __getitem__(self, idx):
         source = np.asarray(imread(self.source[idx]))

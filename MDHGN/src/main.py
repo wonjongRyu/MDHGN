@@ -6,9 +6,9 @@ import argparse
 
 from MDHGN import MDHGN
 from train import train_network
-from data import *
+from dataLoader import *
 from utils import *
-from test import test_network, test_time
+from test import test_network
 
 
 def parse_args():
@@ -37,39 +37,30 @@ def parse_args():
     parser.add_argument("--size_of_images", type=int, default=512)
 
     """ Hyperparameters: Architecture """
-    parser.add_argument("--size_of_miniBatches", type=int, default=16)
-    parser.add_argument("--num_of_initChannel", type=int, default=128)
+    parser.add_argument("--size_of_miniBatches", type=int, default=8)
+    parser.add_argument("--num_of_initChannel", type=int, default=64)
     parser.add_argument("--num_of_blocks", type=int, default=15)
     parser.add_argument("--num_of_epochs", type=int, default=1000)
 
     """ Hyperparameters: Learning Rate """
-    parser.add_argument("--learning_rate", type=float, default=10e-4)
+    parser.add_argument("--learning_rate", type=float, default=10e-5)
     parser.add_argument("--coefficient_of_loss", type=float, default=0.05)
 
     """ Save Cycles """
     parser.add_argument("--saveCycle_of_loss", type=int, default=1)
-    parser.add_argument("--saveCycle_of_image", type=int, default=1)
-    parser.add_argument("--saveCycle_of_network", type=int, default=3)
+    parser.add_argument("--saveCycle_of_image", type=int, default=5)
 
     """ Save Paths """
     parser.add_argument("--savePath_of_outputs",
                         type=str, default="../outputs")
     parser.add_argument("--savePath_of_images", type=str,
                         default="../outputs/images")
-    parser.add_argument("--savePath_of_networks", type=str,
-                        default="../outputs/networks")
-    parser.add_argument("--savePath_of_layers", type=str,
-                        default="../outputs/layers")
-    parser.add_argument("--savePath_of_tensor", type=str,
-                        default="../outputs/tensor")
     parser.add_argument("--savePath_of_loss", type=str,
                         default="../outputs/loss.csv")
     parser.add_argument("--savePath_of_arch", type=str,
                         default="../outputs/arch.csv")
     parser.add_argument("--savePath_of_args", type=str,
                         default="../outputs/args.csv")
-    parser.add_argument("--savePath_of_test", type=str,
-                        default="../outputs/test.csv")
 
     return parser.parse_args()
 
@@ -81,12 +72,6 @@ def main():
 
     """ Define Network """
     network = MDHGN(args)
-
-    """ Load Pretrained Network """
-    if args.use_pretrained_network:
-        loadPath_of_pretrained_network = os.path.join(
-            "../outputs", args.start_time, "networks", args.network_name)
-        network.load_state_dict(torch.load(loadPath_of_pretrained_network))
 
     """ CPU2GPU """
     if args.is_cuda_available:

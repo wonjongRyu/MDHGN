@@ -48,7 +48,7 @@ class ResBlock(nn.Module):
 
 class UpSampBlock(nn.Module):
     def __init__(self, i, o, k, s, p):
-        super(UnSampBlock, self).__init__()
+        super(UpSampBlock, self).__init__()
         self.upSampling = upSampling()
         self.conv = conv_layer(i, o, k=k, s=s, p=p)
         self.batchNorm = batchNorm(o)
@@ -93,56 +93,6 @@ def MAE(a, b):
     return abs(a-b).sum()/a.numel()
 
 
-def minmaxLoss_onepoint(img):
-    max1, _ = img.max(2)
-    max2, _ = max1.max(2)
-
-    min1, _ = img.min(2)
-    min2, _ = min1.min(2)
-
-    loss = max2-min2
-    sum = loss.sum(0)
-
-    return sum
-
-
-def minmaxLoss_rowcolumn(img):
-
-    for i in range(img.size()[0]):
-        plane = img[i, :, :, :]
-        meanval = plane.mean()
-        plane = plane - meanval
-        img[i, :, :, :] = abs(plane)
-
-    sum = img.sum()
-
-    return sum
-
-
 def upSampling():
     return nn.UpsamplingBilinear2d(scale_factor=2)
 
-
-def n1(tensor):
-    if torch.sub(torch.max(tensor), torch.min(tensor)) == 0:
-        tensor = tensor / tensor
-    else:
-        tensor = torch.div(
-            torch.sub(
-                tensor,
-                torch.min(tensor)
-            ),
-            torch.sub(
-                torch.max(tensor),
-                torch.min(tensor)
-            )
-        )
-    return tensor
-
-
-def n2(tensor):
-    if torch.sub(torch.max(tensor), torch.min(tensor)) == 0:
-        tensor = tensor / tensor
-    else:
-        tensor = torch.div(tensor, torch.max(tensor))
-    return tensor

@@ -1,2 +1,3 @@
-MDHGN/dataset/*/*/*.*
+MDHGN/dataset
 MDHGN/outputs
+MDHGN/src/__pycache__

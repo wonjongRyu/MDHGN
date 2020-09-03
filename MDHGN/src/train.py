@@ -4,9 +4,8 @@ import torch.optim as optim
 from utils import *
 from ops import *
 import time
-from test import test, test_refinement
-from data import data_loader
-import pytorch_ssim
+from test import test_network
+from dataLoader import data_loader
 from torchvision import transforms
 
 
@@ -30,19 +29,14 @@ def train_network(args, network):
                 args, epoch, time.time()-since, train_loss, valid_loss)
 
         """ Print image """
-        if (epoch % args.saveCycle_of_images) == 0:
+        if (epoch % args.saveCycle_of_image) == 0:
             # visualize_conv_layer(args, G)
-            test(args, G, test_loader, epoch)
-
-        """ Save model """
-        if (epoch % args.saveCycle_of_models) == 0:
-            torch.save(G.state_dict(), args.savePath_of_models +
-                       "/HGN_train_continued" + str(epoch) + ".pt")
+            test_network(args, network, test_loader, epoch)
 
     print('======================[ train finished ]======================')
 
 
-def iteratation(args, network, data_loader, phase):
+def iteration(args, network, data_loader, phase):
     """ iteration function """
 
     """ Phase setting: train or valid """
@@ -52,24 +46,26 @@ def iteratation(args, network, data_loader, phase):
         network.eval()
 
     """ Define loss function and optimizer """
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(G.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(network.parameters(), lr=args.learning_rate)
 
     """ Initialize the loss_sum """
-    loss_mse_sum = 0.0
-    loss_ssim_sum = 0.0
+    loss_sum=0
+    MSE_real_sum=0
+    MAE_real_sum=0
+    MSE_imag_sum=0
+    MAE_imag_sum=0
 
     """ Start batch iteration """
     for batch_idx, (source, realTarget, imagTarget) in enumerate(data_loader):
 
-        dataNum = len(data_loader)
+        dataNum = len(source)
 
         """ Transfer data to GPU """
         if args.is_cuda_available:
             source, realTarget, imagTarget = source.cuda(), realTarget.cuda(), imagTarget.cuda()
 
-        """ Run model """
-        real, imag = G(source)
+        """ Run Network """
+        real, imag = network(source)
 
         """ Calculate batch loss """
         MSE_real = MSE(real, realTarget)
