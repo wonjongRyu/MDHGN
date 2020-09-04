@@ -30,7 +30,6 @@ def train_network(args, network):
 
         """ Print image """
         if (epoch % args.saveCycle_of_image) == 0:
-            # visualize_conv_layer(args, G)
             test_network(args, network, test_loader, epoch)
 
     print('======================[ train finished ]======================')
@@ -49,11 +48,11 @@ def iteration(args, network, data_loader, phase):
     optimizer = optim.Adam(network.parameters(), lr=args.learning_rate)
 
     """ Initialize the loss_sum """
-    loss_sum=0
-    MSE_real_sum=0
-    MAE_real_sum=0
-    MSE_imag_sum=0
-    MAE_imag_sum=0
+    loss_sum = 0
+    MSE_real_sum = 0
+    MAE_real_sum = 0
+    MSE_imag_sum = 0
+    MAE_imag_sum = 0
 
     """ Start batch iteration """
     for batch_idx, (source, realTarget, imagTarget) in enumerate(data_loader):
